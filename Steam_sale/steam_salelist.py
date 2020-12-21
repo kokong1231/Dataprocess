@@ -28,7 +28,9 @@ while True:
 html = driver.page_source
 soup = bs(html, 'html.parser')
 
-for x in tqdm(range(500)):
+game_count = soup.find_all('span', class_='title')
+
+for x in tqdm(range(len(game_count))):
     temp = []
     try:
         temp.append(soup.select_one('a:nth-child('+str(x+1)+') > div.responsive_search_name_combined > div.col.search_name.ellipsis > span').string)
