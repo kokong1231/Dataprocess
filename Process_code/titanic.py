@@ -20,4 +20,4 @@ labels = ['10', '20', '30', '40', '50', '60', '70', '80', '90']
 
 age_categories = pd.cut(del_nan, bins, labels=labels)
 
-print(age_categories.conut())
+print(age_categories)
