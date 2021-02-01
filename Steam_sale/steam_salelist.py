@@ -2,8 +2,8 @@ from bs4 import BeautifulSoup as bs
 from selenium import webdriver
 
 import pandas as pd
-import numpy as np
 import time
+
 from tqdm import tqdm
 
 
@@ -28,21 +28,49 @@ while True:
 html = driver.page_source
 soup = bs(html, 'html.parser')
 
-game_count = soup.find_all('span', class_='title')
+driver.quit()
 
-for x in tqdm(range(len(game_count))):
+
+
+discount_pct = soup.find_all('span', class_='title')
+discount_final_price = soup.find_all('div', class_='search_discount')
+tab_item_name = soup.find_all('div', class_='discounted')
+
+
+
+def data_value(prog, prog_, prog__):
     temp = []
-    try:
-        temp.append(soup.select_one('a:nth-child('+str(x+1)+') > div.responsive_search_name_combined > div.col.search_name.ellipsis > span').string)
-        temp.append(soup.select_one('a:nth-child('+str(x+1)+') > div.responsive_search_name_combined > div.col.search_price_discount_combined.responsive_secondrow > div.col.search_discount.responsive_secondrow > span').string)
-        temp.append(soup.select_one('a:nth-child('+str(x+1)+') > div.responsive_search_name_combined > div.col.search_price_discount_combined.responsive_secondrow > div.col.search_price.discounted.responsive_secondrow > span > strike').string)
-    except:
-        print('None_type : %d' %x)
-    
-    save_value.append(temp)
+    temp_price = []
+    temp_title = []
+
+
+    for x in tqdm(prog):
+        try:
+            temp.append(int(((x.get_text()).replace('-', '')).replace('%', '')))
+        except:
+            continue
+
+    for y in tqdm(prog_):
+        try:
+            temp_price.append(int((((y.get_text()).split('₩')[2]).replace(' ', '')).replace(',', '')))
+        except:
+            continue
+
+    for z in tqdm(prog__):
+        try:
+            temp_title.append(z.get_text())
+        except:
+            continue
+
+    return temp, temp_price, temp_title
+
+
+
+a, b, c = data_value(discount_final_price, tab_item_name, discount_pct)
+save_value = list(zip(c, a, b))
+
 
 
 data = pd.DataFrame(save_value, columns=['title','sale','price'])
 data.to_csv('./dataset/steam_sale_list.csv', index=False)
 
-driver.quit()
